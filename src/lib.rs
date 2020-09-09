@@ -1,4 +1,5 @@
 pub mod btree;
+mod btree_test;
 
 #[cfg(test)]
 mod tests {
