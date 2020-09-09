@@ -10,6 +10,20 @@ pub struct BTree<T: Ord> {
     pub(crate) children: Vec<BTree<T>>,
 }
 
+impl<T> BTree<T>
+where
+    T: Ord,
+{
+    pub fn new(order: usize, key: T) -> Self {
+        Self {
+            order,
+            kind: NodeKind::Leaf,
+            keys: vec![key],
+            children: vec![],
+        }
+    }
+}
+
 /// NodeKind indicates a type of B-Tree node.
 #[derive(Debug, Eq, PartialEq)]
 pub(crate) enum NodeKind {
