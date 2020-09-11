@@ -80,4 +80,41 @@ mod tests {
         };
         is_valid_btree(&tree);
     }
+
+    #[test]
+    fn search_tree() {
+        let tree = BTree {
+            order: 4,
+            kind: NodeKind::Root,
+            keys: vec![4],
+            children: vec![
+                BTree {
+                    order: 4,
+                    kind: NodeKind::Internal,
+                    keys: vec![2],
+                    children: vec![BTree::new(4, 1), BTree::new(4, 3)],
+                },
+                BTree {
+                    order: 4,
+                    kind: NodeKind::Internal,
+                    keys: vec![6, 8],
+                    children: vec![
+                        BTree::new(4, 5),
+                        BTree::new(4, 7),
+                        BTree {
+                            order: 4,
+                            kind: NodeKind::Leaf,
+                            keys: vec![9, 10],
+                            children: vec![],
+                        },
+                    ],
+                },
+            ],
+        };
+        // The tree contains 1, 2, ..., 10.
+        for i in 1..=10 {
+            assert_eq!(tree.search(&i), Some(&i));
+        }
+        assert_eq!(tree.search(&11), None);
+    }
 }
