@@ -241,8 +241,12 @@ mod tests {
             tree.insert(key.clone());
         }
 
-        for key in keys {
-            assert_eq!(tree.get(&key), Some(&key));
+        for key in &keys {
+            assert_eq!(tree.get(key), Some(key));
         }
+
+        keys.sort();
+        keys.dedup();
+        assert_eq!(keys, tree.root.traverse());
     }
 }

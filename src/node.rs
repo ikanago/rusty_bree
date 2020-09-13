@@ -20,7 +20,7 @@ pub(crate) struct Node<T: Ord> {
 
 impl<T> Node<T>
 where
-    T: Ord,
+    T: Ord + Clone,
 {
     pub fn new(order: usize) -> Self {
         Self {
@@ -29,6 +29,20 @@ where
             keys: vec![],
             children: vec![],
         }
+    }
+
+    pub(crate) fn traverse(&self) -> Vec<T> {
+        let mut extracted = vec![];
+        if self.kind == NodeKind::Leaf {
+            extracted = self.keys.clone();
+        } else {
+            extracted.append(&mut self.children[0].traverse());
+            for i in 0..self.keys.len() {
+                extracted.push(self.keys[i].clone());
+                extracted.append(&mut self.children[i + 1].traverse());
+            }
+        }
+        extracted
     }
 
     /// Search a node for a given key.
