@@ -25,12 +25,17 @@ where
         self.root.insert(key);
         if self.root.is_overflow() {
             let index = self.root.order / 2;
+            let child_kind = if self.root.children.len() == 0 {
+                NodeKind::Leaf
+            } else {
+                NodeKind::Internal
+            };
             let left_child = Node {
                 order: self.root.order,
-                kind: self.root.kind,
+                kind: child_kind,
                 // Remove `to_vec()` to aviod requiring T to implement `Clone`.
                 keys: self.root.keys[..index].to_vec(),
-                children: if self.root.kind != NodeKind::Leaf {
+                children: if self.root.children.len() != 0 {
                     self.root.children[..index + 1].to_vec()
                 } else {
                     vec![]
@@ -38,9 +43,9 @@ where
             };
             let right_child = Node {
                 order: self.root.order,
-                kind: self.root.kind,
+                kind: child_kind,
                 keys: self.root.keys[index + 1..].to_vec(),
-                children: if self.root.kind != NodeKind::Leaf {
+                children: if self.root.children.len() != 0 {
                     self.root.children[index + 1..].to_vec()
                 } else {
                     vec![]
@@ -48,7 +53,7 @@ where
             };
             let root = Node {
                 order: self.root.order,
-                kind: NodeKind::Internal,
+                kind: NodeKind::Root,
                 keys: vec![self.root.keys[index].clone()],
                 children: vec![left_child, right_child],
             };
@@ -226,8 +231,7 @@ mod tests {
         assert_eq!(tree.get(&11), None);
     }
 
-    #[test]
-    fn insert_elements() {
+    fn generate_random_keys() -> Vec<u32> {
         let mut rng = rand::thread_rng();
         let mut keys = vec![];
         let key_num = 100;
@@ -235,16 +239,26 @@ mod tests {
         for _ in 0..key_num {
             keys.push(rng.gen_range(0, key_range));
         }
+        keys
+    }
 
+    #[test]
+    fn insert_elements() {
+        let keys = generate_random_keys();
         let mut tree = BTree::new(4);
-        for key in &keys {
-            tree.insert(key.clone());
-        }
-
+        keys.iter().for_each(|key| tree.insert(key.clone()));
+        is_valid_btree(&*tree.root);
         for key in &keys {
             assert_eq!(tree.get(key), Some(key));
         }
+    }
 
+    #[test]
+    fn test_tree_contents() {
+        let mut keys = generate_random_keys();
+        let mut tree = BTree::new(18);
+        keys.iter().for_each(|key| tree.insert(key.clone()));
+        is_valid_btree(&*tree.root);
         keys.sort();
         keys.dedup();
         assert_eq!(keys, tree.root.traverse());

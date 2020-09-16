@@ -25,7 +25,7 @@ where
     pub fn new(order: usize) -> Self {
         Self {
             order,
-            kind: NodeKind::Leaf,
+            kind: NodeKind::Root,
             keys: vec![],
             children: vec![],
         }
@@ -73,7 +73,7 @@ where
             Ok(_) => return,
             Err(index) => index,
         };
-        if self.kind == NodeKind::Leaf {
+        if self.children.len() == 0 {
             self.keys.insert(index, key);
             return;
         }
